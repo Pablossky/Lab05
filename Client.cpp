@@ -114,14 +114,28 @@ bool Client::SendFile(const std::string serFile, const std::string cliFile, cons
 	size_t chunkLength = 0;
 	socket.connect(asio::ip::tcp::endpoint(address, port));
 
-	frame.type = Frame::SEND_FILE;
+	frame.type = Frame::RECV_FILE;
 	frame.len = serFile.size();
-	memcpy(frame.data, fileBuffer, chunkLength);
+	memcpy(frame.data, serFile.data(), serFile.size());
 	asio::write(socket, asio::buffer(&frame, sizeof(Frame)));
 
-	frame.type = Frame::SEND_FILE;
-	frame.len = chunkLength;
-	chunkLength = file.Read(swapBuffer, 1024);
+	frame.type = Frame::RECV_FILE;
+
+	while (chunkLength != 0)
+	{
+		fileBuffer = swapBuffer;
+		chunkLength = file.Read(swapBuffer, 1024);
+		if (chunkLength == 0)
+		{
+			frame.type = Frame::END_OF_FILE;
+		}
+		frame.len = chunkLength;
+		memcpy(frame.data, fileBuffer, chunkLength);
+		asio::write(socket, asio::buffer(&frame, sizeof(Frame)));
+
+		frame.type = Frame::SEND_FILE;
+	}
+	socket.close();
 
 	socket.close();
 	return true;
