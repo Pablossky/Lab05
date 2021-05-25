@@ -86,7 +86,7 @@ bool Client::RecvFile(const std::string serFile, const std::string cliFile, cons
 	asio::read(socket,asio::buffer(&frame,sizeof(Frame)));
 	while (frame.type != Frame::END_OF_FILE)
 	{
-		file.Append(frame.data,frame.length);
+		file.Append(frame.data,frame.len);
 		asio::read(socket,asio::buffer(&frame,sizeof(Frame)));
 	}
 	return true;

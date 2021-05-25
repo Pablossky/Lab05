@@ -8,6 +8,7 @@ int main()
 {
 	Server server(PORT);
 	server.Start();
+	Client client("127.0.0.1",PORT);
 
 	while (true)
 	{
@@ -15,6 +16,7 @@ int main()
 		cout << "Message ";
 		string msg;
 		cin >> msg;
-		Client::Echo(msg, asio::ip::address_v4::from_string("127.0.0.1"), PORT);
+		//Client::Echo(msg, asio::ip::address_v4::from_string("127.0.0.1"), PORT);
+		client.SendFile();
 	}
 }
